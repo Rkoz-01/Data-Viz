@@ -64,13 +64,15 @@ In the dataset, we have categorical data (`cyl`, `vs`, `am`, `gear`, `carb`) and
 
 ### 2.1 Reviewing the Data
 
+need to explore the data 
+
 
 ```{r}
 # Load libraries and data
 library(ggplot2)
 data("mtcars")
 
-ggplot(mtcars, aes(x=mpg)) + geom_histogram(binwidth=1)
+ggplot(mtcars, aes(x=mpg)) + geom_histogram(binwidth=1) #all cars that fall within 1 mpg
 ```
 
 Change the binwidth to 0.5
@@ -81,8 +83,10 @@ Change the binwidth to 10
 
 
 ```{r, eval=FALSE}
-ggplot(mtcars, aes(x=factor(cyl))) + geom_histogram(binwidth = 1)
+ggplot(mtcars, aes(x=factor(cyl))) + geom_histogram(binwidth = 1) #wont work if cyl is a factor. remove it to get a histogram
 
+
+ggplot(mtcars, aes(x=cyl)) + geom_histogram(binwidth = 1)
 ```
 
 
@@ -103,7 +107,7 @@ ggplot(mtcars, aes(x = factor(cyl))) +   # Factor again for categorical
 Look at the distribution of qsec in the code block below:
 
 ```{r, eval=FALSE}
-
+ggplot(mtcars, aes(x=qsec)) + geom_histogram(binwidth = .5) 
 
 ```
 
@@ -128,11 +132,11 @@ library(tidyverse)                                 # data manipulation
 
 
 
-```{r, message=FALSE}
-mtcars_summary <- mtcars %>%
-  group_by(cyl) %>%  # Group by the number of cylinders
+```{r, message=FALSE} 
+mtcars_summary <- mtcars %>% 
+  group_by(cyl) %>%  # Group by the number of cylinders and generatre summary statistics
   summarise(
-    mpg_mean = mean(mpg, na.rm = TRUE),  # mpg mean
+    mpg_mean = mean(mpg, na.rm = TRUE),  # mpg mean, na.rm removes "na" values
     mpg_sd = sd(mpg, na.rm = TRUE),      # mpg standard deviation
     mpg_n = n(),                         # mpg count
     qsec_mean = mean(qsec, na.rm = TRUE),  # qsec mean
@@ -153,8 +157,8 @@ mtcars_summary <- mtcars %>%
 
 
 ```{r, message=FALSE}
-ggplot(data = mtcars_summary, aes(x = factor(cyl), y = qsec_mean)) +
-  geom_bar(stat = "identity")
+ggplot(data = mtcars_summary, aes(x = factor(cyl), y = qsec_mean)) + 
+  geom_bar(stat = "identity") # if you speciofy the Y data, you need to specify the identity, otherwise you will get counts
 ```
 
 
@@ -210,9 +214,9 @@ ggplot(data = mtcars,
        aes(
          x = factor(cyl), 
          y = qsec, 
-         fill = factor(cyl))) +
-  stat_summary(fun = mean, geom = "point", size = 5) + 
-  stat_summary(fun.data = mean_cl_boot, geom = "errorbar")
+         color = factor(cyl))) +
+  stat_summary(fun.data = mean_cl_boot, geom = "errorbar", color = "black", width = 0.2) +
+  stat_summary(fun = mean, geom = "point", size = 5) 
   
 ```
 
@@ -225,6 +229,8 @@ Put the error bars behind the points
 
 
 ### 2.4 Why Bar Plots are Bad
+
+Dont make bar plots of standard error
 
 
 ```{r, warning=FALSE, message=FALSE}
@@ -291,7 +297,8 @@ ggplot(data, aes(x = group, y = value, fill = group)) +
 
 
 ```{r, message=FALSE}
-ggplot(data = mtcars, aes(x = factor(cyl), y = qsec, fill = factor(cyl))) 
+ggplot(data = mtcars, aes(x = factor(cyl), y = qsec, fill = factor(cyl))) +
+  geom_boxplot()
 ```
 
 
@@ -299,7 +306,8 @@ ggplot(data = mtcars, aes(x = factor(cyl), y = qsec, fill = factor(cyl)))
 
 
 ```{r, message=FALSE}
-ggplot(data = mtcars, aes(x = factor(cyl), y = qsec, fill = factor(cyl)))
+ggplot(data = mtcars, aes(x = factor(cyl), y = qsec, fill = factor(cyl)))+
+  geom_violin(draw_quantiles = 0.5)
 ```
 
 Can add draw_quantiles
@@ -308,7 +316,8 @@ Can add draw_quantiles
 
 
 ```{r, message=FALSE}
-ggplot(data = mtcars, aes(x = factor(cyl), y = qsec, fill = factor(cyl)))  # Switch back to color
+ggplot(data = mtcars, aes(x = factor(cyl), y = qsec, color = factor(cyl))) + # Switch back to color
+  geom_point(size = 5)
 
 ```
 
@@ -320,9 +329,9 @@ ggplot(data = mtcars, aes(x = factor(cyl), y = qsec, fill = factor(cyl)))  # Swi
 
 ggplot(data = mtcars, aes(x = factor(cyl), y = qsec, color = factor(cyl))) +
   geom_point(size = 5) +
-  stat_summary(fun.data = mean_cl_boot, geom = "errorbar",
+  stat_summary(fun.data = mean_cl_boot, geom = "errorbar", #add in errorbars
         color = "black", width = 0.2) +
-  stat_summary(fun = mean, geom = "point",
+  stat_summary(fun = mean, geom = "point", #add in the mean
     size = 5, color = "black") 
 
 
@@ -347,7 +356,8 @@ ggplot(data = mtcars, aes(x = factor(cyl), y = qsec, color = factor(cyl))) +
   stat_summary(fun.data = mean_cl_boot, geom = "errorbar",
         color = "black", width = 0.2) +
   stat_summary(fun = mean, geom = "point",
-    size = 5, color = "black")
+    size = 5, color = "black") +
+  theme_classic()
 ```
 
 
@@ -362,8 +372,8 @@ ggplot(data = mtcars, aes(x = factor(cyl), y = qsec, color = factor(cyl))) +
   stat_summary(fun.data = mean_cl_boot, geom = "errorbar",
         color = "black", width = 0.2) +
   stat_summary(fun = mean, geom = "point",
-    size = 5, color = "black") +                 # Add your theme here
-  
+    size = 5, color = "black") +  # Add your theme here
+ theme_classic ()
 
 
 ```
@@ -371,7 +381,7 @@ ggplot(data = mtcars, aes(x = factor(cyl), y = qsec, color = factor(cyl))) +
 
 
 ```{r, message=FALSE}
-# Set our theme to classic
+# Set our theme to classic, this is last for you R session
 theme_set(theme_classic())
 ```
 
@@ -390,11 +400,12 @@ ggplot(data = mtcars, aes(x = factor(cyl), y = qsec, color = factor(cyl))) +
 
 ### 4.2 Shapes and Colors
 
+ggplot has pch argument that defines the point symbol
 
 
 ```{r, message=FALSE}
-ggplot(data = mtcars, aes(x = factor(cyl), y = qsec, color = factor(cyl))) +
-  geom_point(size = 5, pch = 21) +
+ggplot(data = mtcars, aes(x = factor(cyl), y = qsec, fill = factor(cyl))) +
+  geom_point(size = 5, pch = 21, alpha = .7) +
   stat_summary(fun.data = mean_cl_boot, geom = "errorbar",
         color = "black", width = 0.2) +
   stat_summary(fun = mean, geom = "point",
@@ -409,7 +420,7 @@ ggplot(data = mtcars, aes(x = factor(cyl), y = qsec, color = factor(cyl))) +
 ```{r, message=FALSE}
 
 ggplot(data = mtcars, aes(x = factor(cyl), y = qsec)) +
-  geom_point(size = 5, pch = 21, color = "black", aes(fill = factor(cyl))) +
+  geom_point(size = 5, pch = 21, color = "black", aes(fill = factor(cyl))) + #move aes fill to the geom_point to get a better ledgend
   stat_summary(fun.data = mean_cl_boot, geom = "errorbar",
         color = "black", width = 0.2) +
   stat_summary(fun = mean, geom = "point",
@@ -447,7 +458,7 @@ Pick some different shapes to test
 
 # Manually pick colors
 
-
+# you can look up color hex codes on line and then use them in R
 
 ggplot(data = mtcars, aes(x = factor(cyl), y = qsec)) +
   geom_point(size = 5, pch = 21, color = "black", aes(fill = factor(cyl))) +
@@ -455,7 +466,7 @@ ggplot(data = mtcars, aes(x = factor(cyl), y = qsec)) +
         color = "black", width = 0.2) +
   stat_summary(fun = mean, geom = "point",
     size = 5, color = "black") +
-  scale_fill_manual() 
+  scale_fill_manual(values = c("4"= "#0074D9","6"= "#01FF70", "8"= "#FF4136")) 
 
 ```
 
@@ -500,7 +511,7 @@ ggplot(data = mtcars, aes(x = factor(cyl), y = qsec)) +
 # Add position = position_jitter
 
 ggplot(data = mtcars, aes(x = factor(cyl), y = qsec)) +
-  geom_point(position = position_jitter(),   # Slightly offset points
+  geom_point(position = position_jitter(width = 0.15),   # Slightly offset points
              size = 5, pch = 21, color = "black",
              aes(fill = factor(cyl))) +
   stat_summary(fun.data = mean_cl_boot, geom = "errorbar",
@@ -552,7 +563,18 @@ ggplot(data = mtcars, aes(x = factor(cyl), y = qsec)) +
   scale_x_discrete(labels = c("4" = "Slowest", 
                               "6" = "Still Slow", 
                               "8" = "Fast but Broke")) +    # Custom x axis labels
-  
+  scale_y_continuous(limits = c(12, 24), breaks = (c(12,18,24)))+  
+   labs(
+    title = "Quarter Mile speed",
+    x = "",
+    y = "seconds",
+    fill = "Engine Size")+
+ theme(
+    axis.title.x = element_text( size=24, family= "Times", vjust=-0.2),
+    axis.text.x  = element_text( size=16, family= "Times"),
+    axis.title.y = element_text( size=24, family= "Times", vjust=2), # vjust is the distance from the text
+    axis.text.y  = element_text( size=16, family= "Times"),
+    legend.position = "none")
 
 
 
@@ -611,8 +633,8 @@ data("gapminder")
 
 # Filter out 2007 data
 data <- gapminder %>% 
-  filter(year=="2007") %>% 
-  dplyr::select(-year)
+  filter(year=="2007") %>% #only the 2007 data
+  dplyr::select(-year)# remove the column "year"
 # Changing values, sorting, and setting factor levels for plotting
 data %>%
 mutate(pop=pop/1000000) %>%
@@ -670,7 +692,7 @@ library(ggrepel)                                   # extra geoms for ggplot2
 tmp <- data %>%
 mutate(annotation = case_when(
   gdpPercap > 5000 & lifeExp < 60 ~ "yes",
-  gdpPercap > 40000 ~ "yes")) 
+  gdpPercap > 40000 ~ "yes"))  
 
 
 
@@ -743,8 +765,29 @@ mn0 <- round(mean(am0$mpg), 2)
 mn1 <- round(mean(am1$mpg), 2)
 
 
-# Create plot here
-
+# Create plot here THIS IS BROKEN! GET THE REAL CODE
+ggplot(data = mtcars, aes(x = factor(am), y = mpg )) +
+  stat_summary(fun.data = mean_cl_boot, geom = "errorbar",
+        color = "black", width = 0.3) +
+  stat_summary(fun = mean, geom = "point", size = 5, color = "black")+
+  geom_point(position = position_jitter(width = .1), 
+             size = 5) +
+  stat_summary(fun = mean, geom = "point",
+    size = 5, color = "black")+
+  scale_fill_manual(
+    values = c("grey50", "violet", "#0074D9"),
+    labels = c("4" = "Slowest", 
+               "6" = "Still Slow", 
+               "8" = "Fast but Broke")) +        # Custom legend labels
+  scale_x_discrete(labels = c("0" = "Automatic", 
+                              "1" = "Manual" )) +    # Custom x axis labels
+  theme(legend.position = "bottom")+
+  labs(
+    x = "Transmission Type",  # X-axis label
+    y = "Miles per Gallon",  # Y-axis label
+    fill = ""
+  )  
+  
 
 
 

@@ -116,6 +116,7 @@ ggplot(data = mtcars, aes(x = factor(cyl), y = qsec)) +
                "6" = "Still Slow", 
                "8" = "Fast but Broke")) +        # Custom legend labels
   scale_y_continuous(breaks=c(12, 18, 24), limits=c(12,24))+ # Set axis limits and numbers
+  facet_wrap(~vs, labeller = as_labeller(c("0" = "v-shaped", "1" = "Straight")))
   labs(
     x = "Engine Size",  # X-axis label
     y = "Quarter Mile Time (qsec)",  # Y-axis label
@@ -200,11 +201,14 @@ ggplot(data = mtcars_long, aes(x = factor(cyl), y = value)) +
     labels = c("4" = "Slowest", 
                "6" = "Still Slow", 
                "8" = "Fast but Broke")) +        # Custom legend labels
-  labs(
+ labs(
     x = "Number of Cylinders",
     y = "Value", 
     fill = "Engine Size"
-  ) 
+  ) +
+  facet_wrap(~metric, scales = "free_y",          # Allow fee y axis scales
+             labeller = as_labeller(c("hp" = "Horsepower", "qsec" = "Quarter Mile Time"))
+             )  
 ```
 
 

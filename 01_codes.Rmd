@@ -32,6 +32,13 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ### 1.4 Understanding Long vs Wide Data Format
 
+wide data: each row is one sample
+long data: each sample may have several rows (reducing the number of columns)
+
+youcan use tidyr to convert wide to long
+
+melt is another function, Cassandra uses it for correlation matrixes
+
 
 ```{r, message=FALSE, warning=FALSE}
 
@@ -77,6 +84,8 @@ print(wide_again)
 
 ### 1.5 Introduction to ggplot2
 
+ggplot wants: data, aesthetics, geometryhe
+
 
 ```{r, message=FALSE}
 # Install libraries if necessary
@@ -106,7 +115,7 @@ ggplot(data = mtcars, aes(x = wt, y = mpg)) +
 ```{r, message=FALSE}
 ggplot(mtcars, aes(x = wt, y = mpg, color = factor(cyl))) +
   geom_point(size = 3) +
-  geom_smooth(method = "lm", se = FALSE) +
+  geom_smooth(method = "lm", se = FALSE) + #regressuion line showing relationshing between x and y
   labs(title = "Scatter Plot of MPG vs. Weight",
        x = "Weight (1000 lbs)",
        y = "Miles per Gallon",
@@ -118,7 +127,15 @@ ggplot(mtcars, aes(x = wt, y = mpg, color = factor(cyl))) +
 
 ```{r, message=FALSE}
 # Define data, aes, and geom
-ggplot()
+ggplot(mtcars, aes(x=wt, y=mpg, color = factor(cyl)))+ #use color as factor to see each cylinder as a discrete variable use "factor"
+  geom_point()+
+  geom_smooth(method = lm)# add linear model regression line with confidence intervals for each color type
+
+# Define data, aes, and geom, make regression line for entire plot
+ggplot(mtcars, aes(x=wt, y=mpg))+
+  geom_point(aes(color = factor(cyl)))+ #color is attached to geom point so it doesn't affect the line
+  geom_smooth(method = lm)# add linear model regression line for ENTIRE DATA SET
+
 
 ```
 
@@ -132,7 +149,12 @@ Add one regression line
 
 ```{r, message=FALSE}
 # Add one black regression line without se
+# Define data, aes, and geom, make regression line for entire plot
+ggplot(mtcars, aes(x=wt, y=mpg))+
+  geom_point(aes(color = factor(cyl)))+ #color is attached to geom point so it doesn't affect the line
+  geom_smooth(method = lm, se = FALSE, color = "black", linetype = "dashed")
 
+#when you put AES in the top of the plot script, it affects everything. 
 
 ```
 
@@ -148,8 +170,8 @@ Change the code to increase the regression line thickness.
 ```{r eval=FALSE}
 
 ggplot(data = mtcars, aes(x = wt, y = mpg)) +
-  geom_point(aes(color = factor(cyl)), size = 5, alpha = 0.8) +
-  geom_smooth(method = "lm", se = FALSE, color = "black", linetype = "dashed")
+  geom_point(aes(color = factor(cyl)), size = 6, alpha = 0.8) + #alpha = transparency
+  geom_smooth(method = "lm", se = FALSE, color = "black", linetype = "dashed", linewidth = .5 )
 
 ```
 
@@ -160,7 +182,11 @@ ggplot(data = mtcars, aes(x = wt, y = mpg)) +
 
 # Change shape of cyl
 # Color by horsepower
+ggplot(data = mtcars, aes(x = wt, y = mpg)) +
+  geom_point(aes(color = (hp), shape = factor(cyl)), size = 6, alpha = 0.8) + #alpha = transparency
+  geom_smooth(method = "lm", se = FALSE, color = "black", linetype = "dashed", linewidth = .5 )
 
+#remove "factor" from color of hp becuase hp is a continuous range, keep cyl as a foctor for shape differentiation
 
 ```
 
@@ -201,15 +227,18 @@ The mtcars dataset contains data on 32 car models, with the following columns:
  
  Choose two different variables by which to color and shape the points:
  
+ Remember that ggplot is built in layers. Everytime you add a "+" you are adding a new layer. 
+ You can reorganize your layers by rearranging the lines
  
  
 ```{r, eval=FALSE}
 
 ggplot(data = mtcars, aes(x = wt, y = mpg)) +
-  geom_point(aes(color = ,              #Fill in 
-                 shape = ),             #Fill in
+  geom_point(aes(color = disp,              #Fill in 
+                 shape = factor(am)),             #Fill in
              size = 5, alpha = 0.8) +
   geom_smooth(method = "lm", se = FALSE, color = "black", linetype = "dashed")
+
 
 
 ```
